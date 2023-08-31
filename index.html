@@ -33,6 +33,9 @@
         },
     };
 
+    let gameOver = false;
+    let messageText;
+
     let game = new Phaser.Game(config);
 
     function preload () {
@@ -85,9 +88,18 @@
         keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+
+        /*----- Gameplay -----*/
+        this.physics.add.collider(garbageBoy, rats, collideRat, null, this);
     }
 
     function update () {
+        if (gameOver) {
+            if (keys.space.isDown) {
+                this.physics.resume();
+                resetLevel();
+            }
+        }
 
         /*----- Keybindings -----*/
         if (keys.left.isDown || keyA.isDown) {
@@ -109,6 +121,21 @@
             garbageBoy.setVelocityX(0);
             garbageBoy.setVelocityY(0);
         }
+    }
+
+    function collideRat(garbageBoy, rats) {
+        this.physics.pause();
+        gameOver = true;
+        messageText = this.add.text(400, 300, 'Ew! A rat!', { fontSize: '32px', fill: '#C6CA53' });
+    }
+
+    function resetLevel() {
+        messageText.destroy();
+        garbageBoy.body.reset(745, 285);
+        rats.children.iterate(function (rat) {
+            rat.body.reset(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560));
+            rat.setVelocity(-75, -75);
+        });
     }
 
 </script>
