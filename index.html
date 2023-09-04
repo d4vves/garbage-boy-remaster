@@ -91,6 +91,7 @@
 
         /*----- Gameplay -----*/
         this.physics.add.collider(garbageBoy, rats, collideRat, null, this);
+        this.physics.add.collider(garbageBoy, garbageCan, collideCan, null, this);
     }
 
     function update () {
@@ -127,6 +128,12 @@
         this.physics.pause();
         gameOver = true;
         messageText = this.add.text(400, 300, 'Ew! A rat!', { fontSize: '32px', fill: '#C6CA53' });
+    }
+
+    function collideCan(garbageBoy, rats) {
+        this.physics.pause();
+        gameOver = true;
+        messageText = this.add.text(400, 300, 'Welcome home, GB!', { fontSize: '32px', fill: '#C6CA53' });
     }
 
     function resetLevel() {
