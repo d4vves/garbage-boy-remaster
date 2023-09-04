@@ -33,8 +33,10 @@
         },
     };
 
+    let gameAdvance = false;
     let gameOver = false;
     let messageText;
+    let stageNumber = 1;
 
     let game = new Phaser.Game(config);
 
@@ -73,9 +75,11 @@
 
         rats.children.iterate(function (rat) {
             rat.setCollideWorldBounds(true);
-            rat.setVelocity(-75, -75);
+            rat.setVelocity(-95, -95);
             rat.setBounce(1);
         });
+
+        stageText = this.add.text(16, 16, 'stage: 1', { fontSize: '32px', fill: '#C6CA53' });
 
         /*----- Physics -----*/
         this.physics.add.collider(garbageBoy, trafficCones);
@@ -88,6 +92,7 @@
         keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+        spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
         /*----- Gameplay -----*/
         this.physics.add.collider(garbageBoy, rats, collideRat, null, this);
@@ -95,13 +100,6 @@
     }
 
     function update () {
-        if (gameOver) {
-            if (keys.space.isDown) {
-                this.physics.resume();
-                resetLevel();
-            }
-        }
-
         /*----- Keybindings -----*/
         if (keys.left.isDown || keyA.isDown) {
             garbageBoy.setVelocityX(-150);
@@ -115,8 +113,9 @@
         else if (keys.down.isDown || keyS.isDown) {
             garbageBoy.setVelocityY(150);
         }
-        else if (keys.space.isDown) {
-            console.log('USE ITEM!')
+        else if (Phaser.Input.Keyboard.JustDown(spaceBar)) {
+            this.physics.resume();
+            spaceBarDown(gameAdvance, gameOver)
         }
         else {
             garbageBoy.setVelocityX(0);
@@ -124,24 +123,48 @@
         }
     }
 
+    function spaceBarDown(gameAdvance, gameOver) {
+        if (gameAdvance) {
+            advanceLevel();
+        } else if (gameOver) {
+            resetLevel();
+        } else {
+            console.log('USE ITEM!')
+        }
+    }
+
     function collideRat(garbageBoy, rats) {
         this.physics.pause();
-        gameOver = true;
         messageText = this.add.text(400, 300, 'Ew! A rat!', { fontSize: '32px', fill: '#C6CA53' });
+        gameOver = true;
     }
 
     function collideCan(garbageBoy, rats) {
         this.physics.pause();
-        gameOver = true;
         messageText = this.add.text(400, 300, 'Welcome home, GB!', { fontSize: '32px', fill: '#C6CA53' });
+        gameAdvance = true;
     }
 
     function resetLevel() {
         messageText.destroy();
+        gameOver = false;
         garbageBoy.body.reset(745, 285);
         rats.children.iterate(function (rat) {
             rat.body.reset(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560));
-            rat.setVelocity(-75, -75);
+            rat.setVelocity(-95, -95);
+        });
+    }
+
+    function advanceLevel() {
+        messageText.destroy();
+        gameAdvance = false;
+        stageNumber ++
+        stageText.setText(`stage: ${stageNumber}`);
+        garbageBoy.body.reset(745, 285);
+        rats.children.iterate(function (rat) {
+            rat.body.reset(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560));
+            rat.setVelocity(-95 - 5 - (stageNumber * 10), -75 - (stageNumber * 10));
+            let ratVelocity = -95 - 5 - (stageNumber * 10)
         });
     }
 
