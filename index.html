@@ -35,7 +35,10 @@
 
     let gameAdvance = false;
     let gameOver = false;
+    let hasPowerUp = false;
+    let inventory;
     let messageText;
+    let movementSpeed = 150;
     let stageNumber = 1;
 
     let game = new Phaser.Game(config);
@@ -115,16 +118,16 @@
     function update () {
         /*----- Keybindings -----*/
         if (keys.left.isDown || keyA.isDown) {
-            garbageBoy.setVelocityX(-150);
+            garbageBoy.setVelocityX(movementSpeed * -1);
         }
         else if (keys.right.isDown || keyD.isDown) {
-            garbageBoy.setVelocityX(150);
+            garbageBoy.setVelocityX(movementSpeed);
         }
         else if (keys.up.isDown || keyW.isDown) {
-            garbageBoy.setVelocityY(-150);
+            garbageBoy.setVelocityY(movementSpeed * -1);
         }
         else if (keys.down.isDown || keyS.isDown) {
-            garbageBoy.setVelocityY(150);
+            garbageBoy.setVelocityY(movementSpeed);
         }
         else if (Phaser.Input.Keyboard.JustDown(spaceBar)) {
             spaceBarDown(gameAdvance, gameOver)
@@ -157,7 +160,9 @@
 
     function collidePowerUps(garbageBoy, powerUp) {
         powerUp.disableBody(true, true);
-        console.log('PICK UP POWER UP!')
+        hasPowerUp = true;
+        inventory = powerUp.body.gameObject.texture.key;
+        console.log('INVENTORY: ', inventory)
     }
     
     function collideRat(garbageBoy, rats) {
@@ -185,9 +190,21 @@
             advanceLevel();
         } else if (gameOver) {
             resetLevel();
-        } else {
-            console.log('USE ITEM!')
+        } else if (hasPowerUp) {
+            usePowerUp(inventory);
         }
+    }
+
+    function usePowerUp(powerUp) {
+        if (powerUp == 'bottle') {
+                rats.children.iterate(function (rat) {
+                    rat.body.velocity.setTo((rat.body.velocity.x / 2), (rat.body.velocity.y / 2));
+                });
+        } else if (powerUp == 'candy')  {
+            movementSpeed = movementSpeed * 1.5;
+        }
+        hasPowerUp = false;
+        inventory = '';
     }
 
 </script>
