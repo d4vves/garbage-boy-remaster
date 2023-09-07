@@ -42,9 +42,11 @@
 
     function preload () {
         this.load.image('background', 'assets/bg.png');
+        this.load.image('bottle', 'assets/bottle.png');
+        this.load.image('candy', 'assets/candy.png')
         this.load.image('garbageCan', 'assets/garbage.png');
-        this.load.image('trafficCone', 'assets/cone.png');
         this.load.image('rat', 'assets/rat.png');
+        this.load.image('trafficCone', 'assets/cone.png');
         this.load.spritesheet('garbageBoy', 'assets/garbageboy.png', { frameWidth: 35, frameHeight: 68 });
     }
 
@@ -53,14 +55,25 @@
         /*----- Initialization -----*/
         this.add.image(400, 300, 'background');
 
-        garbageCan = this.physics.add.staticGroup();
-        garbageCan.create(70, 287.5, 'garbageCan')
-
         garbageBoy = this.physics.add.sprite(745, 285, 'garbageBoy');
         garbageBoy.setCollideWorldBounds(true);
 
+        garbageCan = this.physics.add.staticGroup();
+        garbageCan.create(70, 287.5, 'garbageCan');
+
         trafficCones = this.physics.add.staticGroup();
-        trafficCones.create(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560), 'trafficCone')
+        trafficCones.create(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560), 'trafficCone');
+
+        powerUps = this.physics.add.group({
+            key: randomPowerUp(),
+            repeat: 0,
+            setXY: {
+                    x: Phaser.Math.Between(130, 765),
+                    y: Phaser.Math.Between(125, 560),
+                    stepX: Phaser.Math.Between(40, 150),
+                    stepY: Phaser.Math.Between(40, 150),
+                }
+        });
 
         rats = this.physics.add.group({
             key: 'rat',
@@ -72,7 +85,6 @@
                     stepY: Phaser.Math.Between(40, 150),
                 }
         });
-
         rats.children.iterate(function (rat) {
             rat.setCollideWorldBounds(true);
             rat.setVelocity(-95, -95);
@@ -81,22 +93,23 @@
 
         stageText = this.add.text(16, 16, 'stage: 1', { fontSize: '32px', fill: '#C6CA53' });
 
-        /*----- Physics -----*/
+        /*----- Collisions -----*/
         this.physics.add.collider(garbageBoy, trafficCones);
-        this.physics.add.collider(rats, trafficCones);
         this.physics.add.collider(rats, garbageCan);
+        this.physics.add.collider(rats, trafficCones);
+
+        /*----- Collision Events -----*/
+        this.physics.add.collider(garbageBoy, rats, collideRat, null, this);
+        this.physics.add.overlap(garbageBoy, garbageCan, collideCan, null, this);
+        this.physics.add.overlap(garbageBoy, powerUps, collidePowerUps, null, this);
 
         /*----- Controls -----*/
         keys = this.input.keyboard.createCursorKeys();
+        keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-        keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
-        /*----- Gameplay -----*/
-        this.physics.add.collider(garbageBoy, rats, collideRat, null, this);
-        this.physics.add.collider(garbageBoy, garbageCan, collideCan, null, this);
     }
 
     function update () {
@@ -114,7 +127,6 @@
             garbageBoy.setVelocityY(150);
         }
         else if (Phaser.Input.Keyboard.JustDown(spaceBar)) {
-            this.physics.resume();
             spaceBarDown(gameAdvance, gameOver)
         }
         else {
@@ -123,20 +135,18 @@
         }
     }
 
-    function spaceBarDown(gameAdvance, gameOver) {
-        if (gameAdvance) {
-            advanceLevel();
-        } else if (gameOver) {
-            resetLevel();
-        } else {
-            console.log('USE ITEM!')
-        }
-    }
-
-    function collideRat(garbageBoy, rats) {
-        this.physics.pause();
-        messageText = this.add.text(400, 300, 'Ew! A rat!', { fontSize: '32px', fill: '#C6CA53' });
-        gameOver = true;
+    /*----- Helpers -----*/
+    function advanceLevel() {
+        messageText.destroy();
+        gameAdvance = false;
+        stageNumber ++;
+        stageText.setText(`stage: ${stageNumber}`);
+        garbageBoy.body.reset(745, 285);
+        rats.children.iterate(function (rat) {
+            rat.body.reset(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560));
+            rat.setVelocity(-95 - 5 - (stageNumber * 10), -75 - (stageNumber * 10));
+            let ratVelocity = -95 - 5 - (stageNumber * 10)
+        });
     }
 
     function collideCan(garbageBoy, rats) {
@@ -145,6 +155,21 @@
         gameAdvance = true;
     }
 
+    function collidePowerUps(garbageBoy, powerUp) {
+        powerUp.disableBody(true, true);
+        console.log('PICK UP POWER UP!')
+    }
+    
+    function collideRat(garbageBoy, rats) {
+        this.physics.pause();
+        messageText = this.add.text(400, 300, 'Ew! A rat!', { fontSize: '32px', fill: '#C6CA53' });
+        gameOver = true;
+    }
+
+    function randomPowerUp() {
+        return Math.random() < 0.5 ? 'bottle' : 'candy';
+    }
+    
     function resetLevel() {
         messageText.destroy();
         gameOver = false;
@@ -155,17 +180,14 @@
         });
     }
 
-    function advanceLevel() {
-        messageText.destroy();
-        gameAdvance = false;
-        stageNumber ++
-        stageText.setText(`stage: ${stageNumber}`);
-        garbageBoy.body.reset(745, 285);
-        rats.children.iterate(function (rat) {
-            rat.body.reset(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560));
-            rat.setVelocity(-95 - 5 - (stageNumber * 10), -75 - (stageNumber * 10));
-            let ratVelocity = -95 - 5 - (stageNumber * 10)
-        });
+    function spaceBarDown(gameAdvance, gameOver) {
+        if (gameAdvance) {
+            advanceLevel();
+        } else if (gameOver) {
+            resetLevel();
+        } else {
+            console.log('USE ITEM!')
+        }
     }
 
 </script>
