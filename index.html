@@ -16,6 +16,7 @@
 
 <script type="text/javascript">
 
+    /*----- Variables -----*/
     let config = {
         type: Phaser.AUTO,
         width: 800,
@@ -40,11 +41,14 @@
     let inventory;
     let messageText;
     let movementSpeed = 150;
+    let ratMovementSpeed = -95;
     let stageNumber = 1;
+    let hasTrashPickup = false;
 
     let game = new Phaser.Game(config);
 
     function preload () {
+        this.load.audio('theme', 'assets/garbage_boy.mp3');
         this.load.image('background', 'assets/bg.png');
         this.load.image('bottle', 'assets/bottle.png');
         this.load.image('candy', 'assets/candy.png')
@@ -91,11 +95,14 @@
         });
         rats.children.iterate(function (rat) {
             rat.setCollideWorldBounds(true);
-            rat.setVelocity(-95, -95);
+            rat.setVelocity(ratMovementSpeed, ratMovementSpeed);
             rat.setBounce(1);
         });
 
+        gameMessage = this.add.text(400, 300, 'Pick up yer trash!', { fontSize: '32px', fill: '#C6CA53' }).setVisible(false);
         stageText = this.add.text(16, 16, 'stage: 1', { fontSize: '32px', fill: '#C6CA53' });
+
+        themeSong = this.sound.add('theme', { loop: true }).play();
 
         /*----- Collisions -----*/
         this.physics.add.collider(garbageBoy, trafficCones);
@@ -104,7 +111,7 @@
 
         /*----- Collision Events -----*/
         this.physics.add.collider(garbageBoy, rats, collideRat, null, this);
-        this.physics.add.overlap(garbageBoy, garbageCan, collideCan, null, this);
+        this.physics.add.collider(garbageBoy, garbageCan, collideCan, null, this);
         this.physics.add.overlap(garbageBoy, powerUps, collidePowerUps, null, this);
 
         /*----- Controls -----*/
@@ -131,7 +138,7 @@
             garbageBoy.setVelocityY(movementSpeed);
         }
         else if (Phaser.Input.Keyboard.JustDown(spaceBar)) {
-            spaceBarDown(gameAdvance, gameOver)
+            spaceBarDown(gameAdvance, gameOver, this.physics)
         }
         else {
             garbageBoy.setVelocityX(0);
