@@ -69,6 +69,9 @@
         garbageCan = this.physics.add.staticGroup();
         garbageCan.create(70, 287.5, 'garbageCan');
 
+        inventoryBottle = this.add.image(225, 68, 'bottle');
+        inventoryCandy = this.add.image(225, 68, 'candy');
+
         trafficCones = this.physics.add.staticGroup();
         trafficCones.create(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560), 'trafficCone');
 
@@ -100,9 +103,10 @@
         });
 
         gameMessage = this.add.text(400, 300, 'Pick up yer trash!', { fontSize: '32px', fill: '#C6CA53' }).setVisible(false);
+        inventoryText = this.add.text(16, 48, 'inventory: ', { fontSize: '32px', fill: '#C6CA53' });
         stageText = this.add.text(16, 16, 'stage: 1', { fontSize: '32px', fill: '#C6CA53' });
 
-        themeSong = this.sound.add('theme', { loop: true }).play();
+        // themeSong = this.sound.add('theme', { loop: true }).play();
 
         /*----- Collisions -----*/
         this.physics.add.collider(garbageBoy, trafficCones);
@@ -143,6 +147,16 @@
         else {
             garbageBoy.setVelocityX(0);
             garbageBoy.setVelocityY(0);
+        }
+
+        /*----- Inventory Display -----*/
+        if (inventory == 'bottle') {
+            inventoryBottle.visible = true;
+        } else if (inventory == 'candy') {
+            inventoryCandy.visible = true;
+        } else {
+            inventoryBottle.visible = false;
+            inventoryCandy.visible = false;
         }
     }
 

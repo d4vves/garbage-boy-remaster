@@ -1,9 +1,17 @@
 function advanceLevel(physics) {
-    messageText.destroy();
     gameAdvance = false;
+    garbageBoy.body.reset(745, 285);
+    hasTrashPickup = false;
+    messageText.destroy();
+    movementSpeed = 150;
     stageNumber ++;
     stageText.setText(`stage: ${stageNumber}`);
-    garbageBoy.body.reset(745, 285);
+    powerUps.clear(destroyChild = true);
+    powerUps.create(
+        Phaser.Math.Between(130, 765),
+        Phaser.Math.Between(125, 560),
+        randomPowerUp()
+    );
     rats.children.iterate(function (rat) {
         rat.body.reset(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560));
         rat.setVelocity(ratMovementSpeed - (stageNumber * 10), ratMovementSpeed - (stageNumber * 10));
@@ -25,10 +33,12 @@ function collideCan(garbageBoy, rats) {
 }
 
 function collidePowerUps(garbageBoy, powerUp) {
-    powerUp.disableBody(true, true);
     hasTrashPickup = true;
-    hasPowerUp = true;
-    inventory = powerUp.body.gameObject.texture.key;
+    powerUp.visible = false;
+    if (!hasPowerUp) {
+        hasPowerUp = true;
+        inventory = powerUp.body.gameObject.texture.key;
+    }
 }
 
 function collideRat(garbageBoy, rats) {
@@ -42,9 +52,15 @@ function randomPowerUp() {
 }
 
 function resetLevel(physics) {
-    messageText.destroy();
     gameOver = false;
     garbageBoy.body.reset(745, 285);
+    hasPowerUp = false;
+    hasTrashPickup = false;
+    inventory = '';
+    messageText.destroy();
+    powerUps.children.iterate(function (powerUp) {
+        powerUp.visible = true;
+    });
     rats.children.iterate(function (rat) {
         rat.body.reset(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560));
         rat.setVelocity(ratMovementSpeed, ratMovementSpeed);
