@@ -1,8 +1,2 @@
 # Garbage Boy Remastered
-Built off of: https://github.com/d4vves/garbage-boy
-
-
-Using: Phaser
-
-
-Music by: Jake Anderson
+To learn Phaser I decided to redo: https://github.com/d4vves/garbage-boy
