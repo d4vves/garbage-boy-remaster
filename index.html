@@ -35,6 +35,8 @@
         },
     };
 
+    let bigBenSlowdown = false;
+    let bigBenToggle = false;
     let gameAdvance = false;
     let gameOver = false;
     let hasPowerUp = false;
@@ -44,12 +46,13 @@
     let ratMovementSpeed = -95;
     let stageNumber = 1;
     let hasTrashPickup = false;
-
+    
     let game = new Phaser.Game(config);
 
     function preload () {
         this.load.audio('theme', 'assets/garbage_boy.mp3');
         this.load.image('background', 'assets/bg.png');
+        this.load.image('ben', 'assets/ben.png');
         this.load.image('bottle', 'assets/bottle.png');
         this.load.image('candy', 'assets/candy.png')
         this.load.image('garbageCan', 'assets/garbage.png');
@@ -62,6 +65,10 @@
 
         /*----- Initialization -----*/
         this.add.image(400, 300, 'background');
+
+        bigBen = this.physics.add.sprite(70, 287.5, 'ben');
+        bigBen.disableBody();
+        bigBen.visible = false;
 
         garbageBoy = this.physics.add.sprite(745, 285, 'garbageBoy');
         garbageBoy.setCollideWorldBounds(true);
@@ -114,8 +121,9 @@
         this.physics.add.collider(rats, trafficCones);
 
         /*----- Collision Events -----*/
-        this.physics.add.collider(garbageBoy, rats, collideRat, null, this);
+        this.physics.add.collider(garbageBoy, bigBen, collideBigBen, null, this);
         this.physics.add.collider(garbageBoy, garbageCan, collideCan, null, this);
+        this.physics.add.collider(garbageBoy, rats, collideRat, null, this);
         this.physics.add.overlap(garbageBoy, powerUps, collidePowerUps, null, this);
 
         /*----- Controls -----*/
@@ -157,6 +165,17 @@
         } else {
             inventoryBottle.visible = false;
             inventoryCandy.visible = false;
+        }
+
+        /*----- Big Ben -----*/
+        bigBenToggle = stageNumber % 5 == 0 ? true : false;
+        if (bigBenToggle) {
+            bigBen.enableBody();
+            bigBen.visible = true;
+            this.physics.moveToObject(bigBen, garbageBoy, bigBenSlowdown ? 75 : 125);
+        } else {
+            bigBen.disableBody();
+            bigBen.visible = false;
         }
     }
 

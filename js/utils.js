@@ -19,6 +19,12 @@ function advanceLevel(physics) {
     physics.resume();
 }
 
+function collideBigBen(garbageBoy, bigBen) {
+    this.physics.pause();
+    messageText = this.add.text(400, 300, 'Not Big Ben!', { fontSize: '32px', fill: '#C6CA53' });
+    gameOver = true;
+}
+
 function collideCan(garbageBoy, rats) {
     if (hasTrashPickup) {
         this.physics.pause();
@@ -80,9 +86,10 @@ function spaceBarDown(gameAdvance, gameOver, physics) {
 
 function usePowerUp(powerUp) {
     if (powerUp == 'bottle') {
-            rats.children.iterate(function (rat) {
-                rat.body.velocity.setTo((rat.body.velocity.x / 2), (rat.body.velocity.y / 2));
-            });
+        bigBenSlowdown = true;
+        rats.children.iterate(function (rat) {
+            rat.body.velocity.setTo((rat.body.velocity.x / 2), (rat.body.velocity.y / 2));
+        });
     } else if (powerUp == 'candy')  {
         movementSpeed = movementSpeed * 1.5;
     }
