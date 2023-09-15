@@ -22,7 +22,7 @@ class TitleScene extends Phaser.Scene {
         this.startText.alpha = 0;
         this.tweens.add({
             targets: this.startText,
-            duration: 1500,
+            duration: 2000,
             repeat: -1,
             yoyo: true,
             alpha: 1,

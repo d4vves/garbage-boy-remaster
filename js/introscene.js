@@ -1,10 +1,6 @@
 class IntroScene extends Phaser.Scene {
     constructor () {
         super('IntroScene');
-
-        this.changeScene = () => {
-            this.scene.start('GameScene');
-        }
     }
 
     preload() {
@@ -43,7 +39,7 @@ class IntroScene extends Phaser.Scene {
             delay: 10000
         });
 
-        this.controlsText = this.add.text(265, 555, 'WASD to move + [space] to use items', { fontSize: '26px', fill: '#C6CA53' });
+        this.controlsText = this.add.text(125, 555, 'WASD to move + [space] to use items', { fontSize: '26px', fill: '#C6CA53' });
         this.controlsText.alpha = 0;
         this.tweens.add({
             targets: this.controlsText,
@@ -53,6 +49,8 @@ class IntroScene extends Phaser.Scene {
             alpha: 1,
         });
 
-        setTimeout(this.changeScene, 18000);
+        setTimeout(() => {
+            this.scene.start('GameScene');
+        }, 18000);
     }
 }
