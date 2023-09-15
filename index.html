@@ -5,6 +5,7 @@
     <title>Garbage Boy</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.22.0/dist/phaser.min.js"></script>
     <script type = "text/javascript" src="js/gamescene.js"></script>
+    <script type = "text/javascript" src="js/introscene.js"></script>
     <script type = "text/javascript" src="js/titlescene.js"></script>
     <style type="text/css">
         body {
@@ -22,7 +23,7 @@
         width: 800,
         height: 600,
         backgroundColor: '#000000',
-        scene: [TitleScene, GameScene],
+        scene: [TitleScene, IntroScene, GameScene],
         physics: {
             default: 'arcade',
             arcade: {

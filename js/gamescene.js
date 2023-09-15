@@ -107,7 +107,6 @@ class GameScene extends Phaser.Scene {
     }
 
     preload () {
-        this.load.audio('theme', 'assets/garbage_boy.mp3');
         this.load.image('background', 'assets/bg.png');
         this.load.image('ben', 'assets/ben.png');
         this.load.image('bottle', 'assets/bottle.png');
@@ -169,8 +168,6 @@ class GameScene extends Phaser.Scene {
         this.gameMessage = this.add.text(400, 300, 'Pick up yer trash!', { fontSize: '32px', fill: '#C6CA53' }).setVisible(false);
         this.inventoryText = this.add.text(16, 48, 'inventory: ', { fontSize: '32px', fill: '#C6CA53' });
         this.stageText = this.add.text(16, 16, 'stage: 1', { fontSize: '32px', fill: '#C6CA53' });
-
-        this.themeSong = this.sound.add('theme', { loop: true }).play();
 
         /*----- Collisions -----*/
         this.physics.add.collider(this.garbageBoy, this.trafficCones);
