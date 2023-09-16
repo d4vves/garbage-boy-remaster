@@ -8,12 +8,13 @@ class GameScene extends Phaser.Scene {
         this.gameAdvance = false;
         this.gameOver = false;
         this.hasPowerUp = false;
-        this.inventory;
+        this.hasTrashPickup = false;
+        this.inventory = '';
         this.messageText;
         this.movementSpeed = 150;
         this.ratMovementSpeed = -100;
         this.stageNumber = 1;
-        this.hasTrashPickup = false;
+        this.stageText;
 
         this.advanceLevel = () => {
             this.gameAdvance = false;
@@ -21,6 +22,7 @@ class GameScene extends Phaser.Scene {
             this.hasTrashPickup = false;
             this.messageText.destroy();
             this.movementSpeed = 150;
+            this.ratMovementSpeed = this.ratMovementSpeed - (this.stageNumber * 10)
             this.stageNumber ++;
             this.stageText.setText(`stage: ${this.stageNumber}`);
             this.powerUps.clear();
@@ -31,7 +33,7 @@ class GameScene extends Phaser.Scene {
             );
             this.rats.children.iterate((rat) => {
                 rat.body.reset(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560));
-                rat.setVelocity(this.ratMovementSpeed - (this.stageNumber * 10), this.ratMovementSpeed - (this.stageNumber * 10));
+                rat.setVelocity(this.ratMovementSpeed, this.ratMovementSpeed);
             });
             this.physics.resume();
         }
@@ -86,7 +88,7 @@ class GameScene extends Phaser.Scene {
             if (this.inventory == 'bottle') {
                 this.bigBenSlowdown = true;
                 this.rats.children.iterate((rat) => {
-                    rat.body.velocity.setTo((rat.body.velocity.x / 2), (rat.body.velocity.y / 2));
+                    rat.body.velocity.setTo((rat.body.velocity.x / 1.5), (rat.body.velocity.y / 1.5));
                 });
             } else if (this.inventory == 'candy')  {
                 this.movementSpeed = this.movementSpeed * 1.5;
@@ -202,13 +204,13 @@ class GameScene extends Phaser.Scene {
         }
         else if (this.keys.down.isDown || this.keyS.isDown) {
             this.garbageBoy.setVelocityY(this.movementSpeed);
-        }
-        else if (Phaser.Input.Keyboard.JustDown(this.spaceBar)) {
-            this.spaceBarDown()
-        }
-        else {
+        } else {
             this.garbageBoy.setVelocityX(0);
             this.garbageBoy.setVelocityY(0);
+        }
+
+        if (Phaser.Input.Keyboard.JustDown(this.spaceBar)) {
+            this.spaceBarDown()
         }
 
         /*----- Inventory Display -----*/
