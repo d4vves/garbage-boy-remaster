@@ -73,6 +73,10 @@ class GameScene extends Phaser.Scene {
             this.gameOver = true;
         }
 
+        this.ratBounce = () => {
+            this.ratBounceFx.play();
+        }
+
         this.resetLevel = () => {
             this.gameOver = false;
             this.garbageBoy.body.reset(745, 285);
@@ -91,6 +95,16 @@ class GameScene extends Phaser.Scene {
             });
             this.physics.resume();
         }
+
+        this.spaceBarDown = () => {
+            if (this.gameAdvance) {
+                this.advanceLevel(this.physics);
+            } else if (this.gameOver) {
+                this.resetLevel(this.physics);
+            } else if (this.hasPowerUp) {
+                this.usePowerUp();
+            }
+        }
         
         this.usePowerUp = () => {
             if (this.inventory == 'bottle') {
@@ -104,19 +118,10 @@ class GameScene extends Phaser.Scene {
             this.hasPowerUp = false;
             this.inventory = '';
         }
-
-        this.spaceBarDown = () => {
-            if (this.gameAdvance) {
-                this.advanceLevel(this.physics);
-            } else if (this.gameOver) {
-                this.resetLevel(this.physics);
-            } else if (this.hasPowerUp) {
-                this.usePowerUp();
-            }
-        }
     }
 
     preload () {
+        this.load.audio('ratBounce', 'assets/rat_bounce.mp3');
         this.load.image('background', 'assets/bg.png');
         this.load.image('ben', 'assets/ben.png');
         this.load.image('bottle', 'assets/bottle.png');
@@ -175,16 +180,28 @@ class GameScene extends Phaser.Scene {
             rat.setCollideWorldBounds(true);
             rat.setVelocity(this.ratMovementSpeed, this.ratMovementSpeed);
             rat.setBounce(1);
+            rat.body.onWorldBounds = true;
+            rat.onWorldBounds = () => {
+                this.ratBounceFx.play();
+            }
         });
 
         this.gameMessage = this.add.text(400, 300, 'Pick up yer trash!', { fontSize: '32px', fill: '#C6CA53' }).setVisible(false);
         this.inventoryText = this.add.text(16, 48, 'inventory: ', { fontSize: '32px', fill: '#C6CA53' });
         this.stageText = this.add.text(16, 16, 'stage: 1', { fontSize: '32px', fill: '#C6CA53' });
 
+        this.ratBounceFx = this.sound.add('ratBounce');
+
         /*----- Collisions -----*/
         this.physics.add.collider(this.garbageBoy, this.trafficCones);
-        this.physics.add.collider(this.rats, this.garbageCan);
-        this.physics.add.collider(this.rats, this.trafficCones);
+        this.physics.add.collider(this.rats, this.garbageCan, () => { this.ratBounceFx.play() });
+        this.physics.add.collider(this.rats, this.trafficCones, () => { this.ratBounceFx.play() });
+
+        this.physics.world.on('worldbounds', (body) => {
+            if (body.gameObject.texture.key == 'rat') {
+                body.gameObject.onWorldBounds();
+            }
+        });
 
         /*----- Collision Events -----*/
         this.physics.add.collider(this.garbageBoy, this.bigBen, this.collideBigBen, null, this);

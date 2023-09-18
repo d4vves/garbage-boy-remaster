@@ -4,7 +4,7 @@ class TitleScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.audio('theme', 'assets/garbage_boy.mp3');
+        this.load.audio('theme', 'assets/theme.mp3');
         this.load.image('op', 'assets/op.png');
     }
 
