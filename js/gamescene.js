@@ -54,6 +54,7 @@ class GameScene extends Phaser.Scene {
         }
 
         this.collidePowerUps = (garbageBoy, powerUp) => {
+            this.pickUpPowerUpFx.play();
             this.hasTrashPickup = true;
             powerUp.visible = false;
             if (!this.hasPowerUp) {
@@ -71,10 +72,6 @@ class GameScene extends Phaser.Scene {
             this.physics.pause();
             this.messageText = this.add.text(400, 300, 'Ew! A rat!', { fontSize: '32px', fill: '#C6CA53' });
             this.gameOver = true;
-        }
-
-        this.ratBounce = () => {
-            this.ratBounceFx.play();
         }
 
         this.resetLevel = () => {
@@ -115,13 +112,16 @@ class GameScene extends Phaser.Scene {
             } else if (this.inventory == 'candy')  {
                 this.movementSpeed = this.movementSpeed * 1.5;
             }
+            this.usePowerUpFx.play();
             this.hasPowerUp = false;
             this.inventory = '';
         }
     }
 
     preload () {
+        this.load.audio('pickUpPowerUp', 'assets/pick_up_powerup.mp3');
         this.load.audio('ratBounce', 'assets/rat_bounce.mp3');
+        this.load.audio('usePowerUp', 'assets/use_powerup.mp3');
         this.load.image('background', 'assets/bg.png');
         this.load.image('ben', 'assets/ben.png');
         this.load.image('bottle', 'assets/bottle.png');
@@ -135,7 +135,7 @@ class GameScene extends Phaser.Scene {
     }
 
     create () {
-        /*----- Initialization -----*/
+        /*----- Sprites -----*/
         this.add.image(400, 300, 'background');
 
         this.bigBen = this.physics.add.sprite(70, 287.5, 'ben');
@@ -181,35 +181,32 @@ class GameScene extends Phaser.Scene {
             rat.setVelocity(this.ratMovementSpeed, this.ratMovementSpeed);
             rat.setBounce(1);
             rat.body.onWorldBounds = true;
-            rat.onWorldBounds = () => {
-                this.ratBounceFx.play();
-            }
         });
 
+        /*----- Text & Audio -----*/
         this.gameMessage = this.add.text(400, 300, 'Pick up yer trash!', { fontSize: '32px', fill: '#C6CA53' }).setVisible(false);
         this.inventoryText = this.add.text(16, 48, 'inventory: ', { fontSize: '32px', fill: '#C6CA53' });
         this.stageText = this.add.text(16, 16, 'stage: 1', { fontSize: '32px', fill: '#C6CA53' });
 
+        this.pickUpPowerUpFx = this.sound.add('pickUpPowerUp');
         this.ratBounceFx = this.sound.add('ratBounce');
+        this.usePowerUpFx = this.sound.add('usePowerUp');
 
         /*----- Collisions -----*/
         this.physics.add.collider(this.garbageBoy, this.trafficCones);
-        this.physics.add.collider(this.rats, this.garbageCan, () => { this.ratBounceFx.play() });
-        this.physics.add.collider(this.rats, this.trafficCones, () => { this.ratBounceFx.play() });
-
-        this.physics.world.on('worldbounds', (body) => {
-            if (body.gameObject.texture.key == 'rat') {
-                body.gameObject.onWorldBounds();
-            }
-        });
-
-        /*----- Collision Events -----*/
         this.physics.add.collider(this.garbageBoy, this.bigBen, this.collideBigBen, null, this);
         this.physics.add.collider(this.garbageBoy, this.garbageCan, this.collideCan, null, this);
         this.physics.add.collider(this.garbageBoy, this.rats, this.collideRat, null, this);
         this.physics.add.overlap(this.garbageBoy, this.powerUps, this.collidePowerUps, null, this);
+        this.physics.add.collider(this.rats, this.garbageCan, () => { this.ratBounceFx.play() });
+        this.physics.add.collider(this.rats, this.trafficCones, () => { this.ratBounceFx.play() });
+        this.physics.world.on('worldbounds', (body) => {
+            if (body.gameObject.texture.key == 'rat') {
+                this.ratBounceFx.play();
+            }
+        });
 
-        /*----- Controls -----*/
+        /*----- Keys -----*/
         this.keys = this.input.keyboard.createCursorKeys();
         this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
