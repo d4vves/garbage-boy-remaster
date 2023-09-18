@@ -7,6 +7,7 @@ class GameScene extends Phaser.Scene {
         this.bigBenToggle = false;
         this.gameAdvance = false;
         this.gameOver = false;
+        this.garbageBoyDirection = 'left';
         this.hasPowerUp = false;
         this.hasTrashPickup = false;
         this.inventory = '';
@@ -19,6 +20,7 @@ class GameScene extends Phaser.Scene {
         this.advanceLevel = () => {
             this.gameAdvance = false;
             this.garbageBoy.body.reset(745, 285);
+            this.garbageBoyDirection = 'left';
             this.hasTrashPickup = false;
             this.messageText.destroy();
             this.movementSpeed = 150;
@@ -32,7 +34,7 @@ class GameScene extends Phaser.Scene {
                 Math.random() < 0.5 ? 'bottle' : 'candy'
             );
             this.rats.children.iterate((rat) => {
-                rat.body.reset(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560));
+                rat.body.reset(Phaser.Math.Between(130, 700), Phaser.Math.Between(125, 500));
                 rat.setVelocity(this.ratMovementSpeed, this.ratMovementSpeed);
             });
             this.physics.resume();
@@ -61,6 +63,11 @@ class GameScene extends Phaser.Scene {
         }
 
         this.collideRat = () => {
+            if (this.garbageBoyDirection == 'left') {
+                // this.garbageBoy.anims.play('deathLeft', true);
+            } else if (this.garbageBoyDirection == 'right') {
+                // this.garbageBoy.anims.play('deathRight', true);
+            }
             this.physics.pause();
             this.messageText = this.add.text(400, 300, 'Ew! A rat!', { fontSize: '32px', fill: '#C6CA53' });
             this.gameOver = true;
@@ -69,6 +76,7 @@ class GameScene extends Phaser.Scene {
         this.resetLevel = () => {
             this.gameOver = false;
             this.garbageBoy.body.reset(745, 285);
+            this.garbageBoyDirection = 'left';
             this.hasPowerUp = false;
             this.hasTrashPickup = false;
             this.inventory = '';
@@ -78,7 +86,7 @@ class GameScene extends Phaser.Scene {
                 powerUp.visible = true;
             });
             this.rats.children.iterate((rat) => {
-                rat.body.reset(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560));
+                rat.body.reset(Phaser.Math.Between(130, 700), Phaser.Math.Between(125, 500));
                 rat.setVelocity(this.ratMovementSpeed, this.ratMovementSpeed);
             });
             this.physics.resume();
@@ -117,6 +125,8 @@ class GameScene extends Phaser.Scene {
         this.load.image('rat', 'assets/rat.png');
         this.load.image('trafficCone', 'assets/cone.png');
         this.load.spritesheet('garbageBoy', 'assets/garbageboy.png', { frameWidth: 35, frameHeight: 68 });
+        // this.load.spritesheet('garbageBoy', 'assets/gboy_sprite.png', { frameWidth: 48, frameHeight: 48 });
+        // this.load.spritesheet('garbageBoyDeath', 'assets/gboy_death_sprite.png', { frameWidth: 64, frameHeight: 64 });
     }
 
     create () {
@@ -137,13 +147,13 @@ class GameScene extends Phaser.Scene {
         this.inventoryCandy = this.add.image(225, 68, 'candy');
 
         this.trafficCones = this.physics.add.staticGroup();
-        this.trafficCones.create(Phaser.Math.Between(130, 765), Phaser.Math.Between(125, 560), 'trafficCone');
+        this.trafficCones.create(Phaser.Math.Between(130, 700), Phaser.Math.Between(125, 560), 'trafficCone');
 
         this.powerUps = this.physics.add.group({
             key: Math.random() < 0.5 ? 'bottle' : 'candy',
             repeat: 0,
             setXY: {
-                    x: Phaser.Math.Between(130, 765),
+                    x: Phaser.Math.Between(130, 700),
                     y: Phaser.Math.Between(125, 560),
                     stepX: Phaser.Math.Between(40, 150),
                     stepY: Phaser.Math.Between(40, 150),
@@ -154,8 +164,8 @@ class GameScene extends Phaser.Scene {
             key: 'rat',
             repeat: 1,
             setXY: {
-                    x: Phaser.Math.Between(130, 765),
-                    y: Phaser.Math.Between(125, 560),
+                    x: Phaser.Math.Between(130, 700),
+                    y: Phaser.Math.Between(125, 500),
                     stepX: Phaser.Math.Between(40, 150),
                     stepY: Phaser.Math.Between(40, 150),
                 }
@@ -189,24 +199,85 @@ class GameScene extends Phaser.Scene {
         this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         this.spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+        /*----- Sprite Animations -----*/
+        // this.anims.create({
+        //     key: 'left',
+        //     frames: this.anims.generateFrameNumbers('garbageBoy', { start: 7, end: 0 }),
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
+    
+        // this.anims.create({
+        //     key: 'right',
+        //     frames: this.anims.generateFrameNumbers('garbageBoy', { start: 8, end: 15 }),
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
+
+        // this.anims.create({
+        //     key: 'idleLeft',
+        //     frames: this.anims.generateFrameNumbers('garbageBoy', { start: 16, end: 25 }),
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
+
+        // this.anims.create({
+        //     key: 'idleRight',
+        //     frames: this.anims.generateFrameNumbers('garbageBoy', { start: 26, end: 35 }),
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
+
+        // this.anims.create({
+        //     key: 'deathLeft',
+        //     frames: this.anims.generateFrameNumbers('garbageBoyDeath', { start: 9, end: 0 }),
+        //     frameRate: 10,
+        //     repeat: 0
+        // });
+
+        // this.anims.create({
+        //     key: 'deathRight',
+        //     frames: this.anims.generateFrameNumbers('garbageBoyDeath', { start: 10, end: 19 }),
+        //     frameRate: 10,
+        //     repeat: 0
+        // });
     }
 
     update () {
         /*----- Keybindings -----*/
-        if (this.keys.left.isDown || this.keyA.isDown) {
-            this.garbageBoy.setVelocityX(this.movementSpeed * -1);
-        }
-        else if (this.keys.right.isDown || this.keyD.isDown) {
-            this.garbageBoy.setVelocityX(this.movementSpeed);
-        }
-        else if (this.keys.up.isDown || this.keyW.isDown) {
-            this.garbageBoy.setVelocityY(this.movementSpeed * -1);
-        }
-        else if (this.keys.down.isDown || this.keyS.isDown) {
-            this.garbageBoy.setVelocityY(this.movementSpeed);
-        } else {
-            this.garbageBoy.setVelocityX(0);
-            this.garbageBoy.setVelocityY(0);
+        if (!this.gameOver) {
+            if (this.keys.left.isDown || this.keyA.isDown) {
+                this.garbageBoy.setVelocityX(this.movementSpeed * -1);
+                this.garbageBoyDirection = 'left';
+                // this.garbageBoy.anims.play('left', true);
+            } else if (this.keys.right.isDown || this.keyD.isDown) {
+                this.garbageBoy.setVelocityX(this.movementSpeed);
+                this.garbageBoyDirection = 'right';
+                // this.garbageBoy.anims.play('right', true);
+            } else if (this.keys.up.isDown || this.keyW.isDown) {
+                this.garbageBoy.setVelocityY(this.movementSpeed * -1);
+                if (this.garbageBoyDirection == 'left') {
+                    // this.garbageBoy.anims.play('left', true);
+                } else if (this.garbageBoyDirection == 'right') {
+                    // this.garbageBoy.anims.play('right', true);
+                }
+            } else if (this.keys.down.isDown || this.keyS.isDown) {
+                this.garbageBoy.setVelocityY(this.movementSpeed);
+                if (this.garbageBoyDirection == 'left') {
+                    // this.garbageBoy.anims.play('left', true);
+                } else if (this.garbageBoyDirection == 'right') {
+                    // this.garbageBoy.anims.play('right', true);
+                }
+            } else {
+                this.garbageBoy.setVelocityX(0);
+                this.garbageBoy.setVelocityY(0);
+                if (this.garbageBoyDirection == 'left') {
+                    // this.garbageBoy.anims.play('idleLeft', true);
+                } else if (this.garbageBoyDirection == 'right') {
+                    // this.garbageBoy.anims.play('idleRight', true);
+                }
+            }
         }
 
         if (Phaser.Input.Keyboard.JustDown(this.spaceBar)) {
