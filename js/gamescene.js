@@ -37,6 +37,9 @@ class GameScene extends Phaser.Scene {
                 rat.body.reset(Phaser.Math.Between(130, 700), Phaser.Math.Between(125, 500));
                 rat.setVelocity(this.ratMovementSpeed, this.ratMovementSpeed);
             });
+            this.trafficCones.clear(true);
+            this.trafficCones.create(Phaser.Math.Between(130, 700), Phaser.Math.Between(125, 560), 'trafficCone');
+            this.trafficCones.create(Phaser.Math.Between(130, 700), Phaser.Math.Between(125, 560), 'trafficCone');
             this.physics.resume();
         }
 
@@ -135,31 +138,29 @@ class GameScene extends Phaser.Scene {
     }
 
     create () {
-        /*----- Sprites -----*/
-        this.add.image(400, 300, 'background');
+        /*----- Game Sprites -----*/
+        this.add.image(512, 325, 'background');
 
-        this.bigBen = this.physics.add.sprite(70, 287.5, 'ben');
+        this.bigBen = this.physics.add.sprite(70, 325, 'ben');
         this.bigBen.disableBody();
         this.bigBen.visible = false;
 
-        this.garbageBoy = this.physics.add.sprite(745, 285, 'garbageBoy');
+        this.garbageBoy = this.physics.add.sprite(989, 325, 'garbageBoy');
         this.garbageBoy.setCollideWorldBounds(true);
 
         this.garbageCan = this.physics.add.staticGroup();
-        this.garbageCan.create(70, 287.5, 'garbageCan');
-
-        this.inventoryBottle = this.add.image(225, 68, 'bottle');
-        this.inventoryCandy = this.add.image(225, 68, 'candy');
+        this.garbageCan.create(50, 300, 'garbageCan');
 
         this.trafficCones = this.physics.add.staticGroup();
-        this.trafficCones.create(Phaser.Math.Between(130, 700), Phaser.Math.Between(125, 560), 'trafficCone');
+        this.trafficCones.create(Phaser.Math.Between(250, 900), Phaser.Math.Between(125, 560), 'trafficCone');
+        this.trafficCones.create(Phaser.Math.Between(250, 900), Phaser.Math.Between(125, 560), 'trafficCone');
 
         this.powerUps = this.physics.add.group({
             key: Math.random() < 0.5 ? 'bottle' : 'candy',
             repeat: 0,
             setXY: {
-                    x: Phaser.Math.Between(130, 700),
-                    y: Phaser.Math.Between(125, 560),
+                    x: Phaser.Math.Between(250, 900),
+                    y: Phaser.Math.Between(25, 560),
                     stepX: Phaser.Math.Between(40, 150),
                     stepY: Phaser.Math.Between(40, 150),
                 }
@@ -169,8 +170,8 @@ class GameScene extends Phaser.Scene {
             key: 'rat',
             repeat: 1,
             setXY: {
-                    x: Phaser.Math.Between(130, 700),
-                    y: Phaser.Math.Between(125, 500),
+                    x: Phaser.Math.Between(150, 800),
+                    y: Phaser.Math.Between(25, 560),
                     stepX: Phaser.Math.Between(40, 150),
                     stepY: Phaser.Math.Between(40, 150),
                 }
@@ -183,10 +184,14 @@ class GameScene extends Phaser.Scene {
             rat.body.onWorldBounds = true;
         });
 
+        /*----- Inventory -----*/
+        this.inventoryBottle = this.add.image(310, 15, 'bottle');
+        this.inventoryCandy = this.add.image(310, 15, 'candy');
+
         /*----- Text & Audio -----*/
         this.gameMessage = this.add.text(400, 300, 'Pick up yer trash!', { fontSize: '32px', fill: '#C6CA53' }).setVisible(false);
-        this.inventoryText = this.add.text(16, 48, 'inventory: ', { fontSize: '32px', fill: '#C6CA53' });
-        this.stageText = this.add.text(16, 16, 'stage: 1', { fontSize: '32px', fill: '#C6CA53' });
+        this.inventoryText = this.add.text(150, 0, 'inventory: ', { fontSize: '24px', fill: '#C6CA53' });
+        this.stageText = this.add.text(0, 0, 'stage: 1', { fontSize: '24px', fill: '#C6CA53' });
 
         this.pickUpPowerUpFx = this.sound.add('pickUpPowerUp');
         this.ratBounceFx = this.sound.add('ratBounce');
